@@ -10,3 +10,39 @@ export const LOCATIONS = [
     if (!res.ok) throw new Error(data.error || "Request failed");
     return data;
   }
+
+// Temporary menus, keyed by the restaurant ids in Amir's app.py.
+// Replace fetchMenu with a real fetch once a menu endpoint exists.
+const MENUS = {
+    1: {
+      restaurant: { id: 1, name: "Pizza Palace" },
+      items: [
+        { id: 101, name: "Margherita Pizza", description: "Tomato, mozzarella, basil", price: 14.99 },
+        { id: 102, name: "Pepperoni Pizza", description: "Pepperoni and mozzarella", price: 16.99 },
+        { id: 103, name: "Garlic Bread", description: "Toasted with garlic butter", price: 6.5 },
+      ],
+    },
+    2: {
+      restaurant: { id: 2, name: "Burger Fact" },
+      items: [
+        { id: 201, name: "Classic Burger", description: "Beef patty, lettuce, tomato", price: 12.99 },
+        { id: 202, name: "Cheese Fries", description: "Fries with melted cheese", price: 7.25 },
+        { id: 203, name: "Milkshake", description: "Vanilla, chocolate or strawberry", price: 5.99 },
+      ],
+    },
+    3: {
+      restaurant: { id: 3, name: "Tim's" },
+      items: [
+        { id: 301, name: "Coffee", description: "Freshly brewed", price: 2.25 },
+        { id: 302, name: "Breakfast Sandwich", description: "Egg, cheese and bacon", price: 5.49 },
+        { id: 303, name: "Donut", description: "Assorted flavours", price: 1.79 },
+      ],
+    },
+  };
+  
+  export async function fetchMenu(restaurantId) {
+    await new Promise((resolve) => setTimeout(resolve, 300)); // simulate network
+    const menu = MENUS[restaurantId];
+    if (!menu) throw new Error("Restaurant not found");
+    return menu;
+  }
