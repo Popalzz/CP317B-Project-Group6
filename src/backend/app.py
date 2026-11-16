@@ -89,7 +89,7 @@ def get_restaurants():
 
 print("test distance", calculate_dist(43.45, -80.49, 43.45, -80.49))
 if __name__ == "__main__":
-	app.run(debug=True, port=5000)
+	app.run(debug=True, port=5001)
 
 
 
