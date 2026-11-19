@@ -1,5 +1,5 @@
 
-from app import calculate_dist
+from distance_utils import calculate_dist
 restaurants = {
     1: {
         "owner_id": 101,

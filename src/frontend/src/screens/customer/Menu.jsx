@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { fetchMenu } from "../../api";
+import { Link, useParams, useNavigate} from "react-router-dom";
+import { fetchMenu, createOrder } from "../../api";
 
 export default function Menu() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [restaurant, setRestaurant] = useState(null);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +48,32 @@ export default function Menu() {
 
   const cartItems = items.filter((i) => cart[i.id]);
   const total = cartItems.reduce((sum, i) => sum + i.price * cart[i.id], 0);
+
+  //new changes for ordering
+  async function handlePlaceOrder() {
+  const orderItems = cartItems.map((item) => ({
+    item_id: item.id,
+    quantity: cart[item.id],
+  }));
+
+  const orderData = {
+    customer_id: 1,
+    restaurant_id: Number(id),
+    items: orderItems,
+    delivery_location: {
+      latitude: 43.4643,
+      longitude: -80.5204,
+    },
+  };
+
+  try {
+    const order = await createOrder(orderData);
+
+    navigate(`/customer/order/${order.order_id}`);
+  } catch (err) {
+    setError(err.message || "Failed to place order.");
+  }
+}
 
   return (
     <main style={{ maxWidth: 600, margin: "0 auto", padding: 16 }}>
@@ -116,8 +143,11 @@ export default function Menu() {
           <p>
             <strong>Total: ${total.toFixed(2)}</strong>
           </p>
-          <button style={{ padding: 10, fontSize: 16 }} disabled>
-            Place Order (coming next)
+          <button
+            style={{ padding: 10, fontSize: 16 }}
+            onClick={handlePlaceOrder}
+          >
+            Place Order
           </button>
         </section>
       )}

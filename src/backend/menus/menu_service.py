@@ -47,6 +47,22 @@ def get_menu(restaurant_id: int):
         return None
 
     return menu
+
+def get_menu_item(restaurant_id: int, item_id):
+    rest_menu = get_menu(restaurant_id)
+
+    if rest_menu is None:
+        return None
+
+    if item_id is None or item_id < 1:
+        return None
+
+    item = rest_menu.get(item_id)
+
+    if not item:
+        return None
+
+    return item
             
         
     

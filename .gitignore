@@ -1,17 +1,12 @@
-# Python virtual environments
+# Python
 .venv/
-venv/
-
-# Python cache files
 __pycache__/
 *.pyc
+*.pyo
+.Rhistory
 
-# Environment variables and secrets
-.env
-.env.*
+# Node
+node_modules/
 
-# macOS files
+# macOS
 .DS_Store
-
-# Editor files
-.vscode/

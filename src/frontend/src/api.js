@@ -41,8 +41,41 @@ const MENUS = {
   };
   
   export async function fetchMenu(restaurantId) {
-    await new Promise((resolve) => setTimeout(resolve, 300)); // simulate network
-    const menu = MENUS[restaurantId];
-    if (!menu) throw new Error("Restaurant not found");
-    return menu;
+    const res = await fetch(`/api/restaurants/${restaurantId}/menu`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to load menu");
+    }
+
+    return data;
+  }
+
+  export async function createOrder(orderData) {
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to place order");
+    }
+
+    return data;
+  }
+
+  export async function fetchOrder(orderId) {
+    const res = await fetch(`/api/orders/${orderId}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to load order");
+    }
+
+    return data;
   }

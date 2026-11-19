@@ -1,9 +1,15 @@
 """ORD-1 order placement service scaffold.
 """
-from app import calculate_dist
+from distance_utils import calculate_dist
+from restaurants import get_restaurant_by_id
+from menus.menu_service import get_menu, get_menu_item
+
+orders = {
+
+}
 
 
-def calculate_order_total(items: list) -> float:
+def calculate_order_total(restaurant_id: int,items: list) -> float | None:
     """Calculate the order subtotal from validated line items.
 
     Each item should contain a unit price and quantity.
@@ -13,9 +19,36 @@ def calculate_order_total(items: list) -> float:
     - Avoid trusting a client-supplied total.
     - Decide how taxes/delivery fees are handled for this sprint.
     """
-    
+    total = 0
 
-    raise NotImplementedError
+    for order_item in items:
+        if not isinstance(order_item, dict):
+            return None
+        item_id = order_item.get("item_id")
+        quantity = order_item.get("quantity")
+
+        if not isinstance(item_id, int) or item_id < 1:
+            return None
+
+        if not isinstance(quantity, int) or quantity < 1:
+            return None
+
+        item = get_menu_item(restaurant_id, item_id)
+
+        if not item:
+            return None
+
+        price = item.get("price")
+
+        if not isinstance(price, (int, float)):
+            return None
+
+        total = total + (price * quantity)
+    
+    return total
+
+
+
 
 
 
@@ -30,19 +63,76 @@ def validate_order(restaurant_id: int, items: list, delivery_location: dict):
     - Return a useful validation result/errors.
     """
 
-    if restaurant_id == None:
-            return False
+    if restaurant_id is None:
+        return False
+    rest = get_restaurant_by_id(restaurant_id)
+
+    if not rest:
+        return False
     
-    if items == None:
-            return False
+    if items == None or not items:
+        return False
+
+    if delivery_location is None:
+        return False
+
+    if not isinstance(delivery_location, dict):
+        return False
+
+    latitude = delivery_location.get("latitude")
+    longitude = delivery_location.get("longitude")
+
+    if latitude is None or longitude is None:
+        return False
+
+    if not isinstance(latitude, (int, float)):
+        return False
+
+    if not isinstance(longitude, (int, float)):
+        return False
+
+    if latitude < -90 or latitude > 90:
+        return False
+
+    if longitude < -180 or longitude > 180:
+        return False
+
+    dist = calculate_dist(latitude, longitude, rest["latitude"], rest["longitude"])
+
+    if dist > 35:
+        return False
+
+    rest_menu = get_menu(restaurant_id)
+
+    if rest_menu is None:
+        return False
+
+    if not isinstance(items, list) or not items:
+        return False
     
     for item in items:
-        if item > 10:
+        if not isinstance(item, dict):
+            return False
+        item_id = item.get("item_id")
+        quantity = item.get("quantity")
+
+        if not isinstance(item_id, int) or item_id < 1:
             return False
 
-    dist = calculate_dist(delivery_location.lat ,delivery_location.lon, )
+        if not isinstance(quantity, int) or quantity < 1:
+            return False
 
-    raise NotImplementedError
+        menu_item = get_menu_item(restaurant_id, item_id)
+
+        if not menu_item:
+            return False
+
+        if not menu_item["available"]:
+            return False
+
+    return True
+
+
 
 
 def create_order(customer_id, restaurant_id: int, items: list, delivery_location: dict):
@@ -60,9 +150,38 @@ def create_order(customer_id, restaurant_id: int, items: list, delivery_location
 
     valid = validate_order(restaurant_id, items, delivery_location)
 
+    if not valid:
+        return None
+
+    total = calculate_order_total(restaurant_id, items)
+
+    if total is None:
+        return None
+
+    if not orders:
+        new_ord_id = 1
+    else:
+        new_ord_id = max(orders) + 1
+
+    new_order = {
+        "order_id": new_ord_id,
+        "customer_id": customer_id,
+        "restaurant_id": restaurant_id,
+        "items": items,
+        "delivery_location": delivery_location,
+        "total": total,
+        "status": "Pending"
+    }
+
+    orders[new_ord_id] = new_order
+    
+    return new_order
+
+    
     
 
-    raise NotImplementedError
+    
+
 
 
 def get_order(order_id):
@@ -73,4 +192,13 @@ def get_order(order_id):
     - Later add authorization so customers only see their own orders and
       restaurant staff only see orders for their restaurant.
     """
-    raise NotImplementedError
+
+    if not isinstance(order_id, int) or order_id < 1:
+        return None
+
+    order = orders.get(order_id)
+
+    if order is None:
+        return None
+
+    return order
