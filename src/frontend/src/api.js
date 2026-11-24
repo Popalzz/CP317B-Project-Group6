@@ -79,3 +79,32 @@ const MENUS = {
 
     return data;
   }
+
+  export async function fetchRestaurantOrders(restaurantId) {
+  const res = await fetch(`/api/restaurants/${restaurantId}/orders`);
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to load restaurant orders");
+  }
+
+  return data;
+}
+
+export async function updateOrderStatus(orderId, status) {
+  const res = await fetch(`/api/orders/${orderId}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ status }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to update order status");
+  }
+
+  return data;
+}

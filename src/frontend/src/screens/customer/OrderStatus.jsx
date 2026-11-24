@@ -9,21 +9,44 @@ export default function OrderStatus() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    setLoading(true);
-    setError("");
+useEffect(() => {
+  let active = true;
 
-    fetchOrder(orderId)
-      .then((data) => {
+  async function loadOrder() {
+    try {
+      const data = await fetchOrder(orderId);
+
+      if (active) {
         setOrder(data);
-      })
-      .catch((err) => {
+        setError("");
+      }
+    } catch (err) {
+      if (active) {
         setError(err.message || "Failed to load order.");
-      })
-      .finally(() => {
+      }
+    } finally {
+      if (active) {
         setLoading(false);
-      });
-  }, [orderId]);
+      }
+    }
+  }
+
+  setLoading(true);
+  setOrder(null);
+  setError("");
+
+  // Fetch immediately when the page opens
+  loadOrder();
+
+  // Refresh every 4 seconds
+  const intervalId = setInterval(loadOrder, 4000);
+
+  // Stop polling when the user leaves the page
+  return () => {
+    active = false;
+    clearInterval(intervalId);
+  };
+}, [orderId]);
 
   if (loading) {
     return <p>Loading order...</p>;

@@ -170,7 +170,9 @@ def create_order(customer_id, restaurant_id: int, items: list, delivery_location
         "items": items,
         "delivery_location": delivery_location,
         "total": total,
-        "status": "Pending"
+        "status": "Pending",
+        "driver_id": None,
+        "delivery_status": "Unassigned"
     }
 
     orders[new_ord_id] = new_order
@@ -179,7 +181,14 @@ def create_order(customer_id, restaurant_id: int, items: list, delivery_location
 
     
     
+def get_orders_for_restaurant(restaurant_id):
 
+    rest_ord = []
+    for ord in orders.values():
+        if ord["restaurant_id"] == restaurant_id:
+            rest_ord.append(ord)
+
+    return rest_ord
     
 
 
@@ -200,5 +209,32 @@ def get_order(order_id):
 
     if order is None:
         return None
+
+    return order
+
+def get_available_deliveries():
+    deliveries = []
+
+    for order in orders.values():
+        if order["status"] == "Ready" and order["driver_id"] is None:
+            deliveries.append(order)
+    return deliveries
+
+def accept_delivery(order_id, driver_id):
+    order = get_order(order_id)
+
+    if order is None:
+        return None
+
+    if type(driver_id) is not int or driver_id < 1:
+        return None
+
+    if order["status"] != "Ready":
+        return None
+    if order["driver_id"] is not None:
+        return None
+
+    order["driver_id"] = driver_id
+    order["delivery_status"] = "Assigned"
 
     return order
