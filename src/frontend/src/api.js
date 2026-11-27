@@ -108,3 +108,32 @@ export async function updateOrderStatus(orderId, status) {
 
   return data;
 }
+
+export async function fetchAvailableDeliveries() {
+  const res = await fetch("/api/deliveries/available");
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to load deliveries");
+  }
+
+  return data;
+}
+
+export async function acceptDelivery(orderId, driverId) {
+  const res = await fetch(`/api/orders/${orderId}/accept-delivery`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ driver_id: driverId }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to accept delivery");
+  }
+
+  return data;
+}
