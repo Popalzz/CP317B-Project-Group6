@@ -5,6 +5,7 @@ import Menu from "./screens/customer/Menu";
 import OrderStatus from "./screens/customer/OrderStatus";
 import Dashboard from "./screens/restaurant/Dashboard";
 import MenuManagement from "./screens/restaurant/MenuManagement";
+import Driver from "./screens/driver/Driver";
 
 export default function App() {
   return (
@@ -12,7 +13,9 @@ export default function App() {
       <nav>
         <Link to="/customer">Customer</Link> |{" "}
         <Link to="/restaurant">Restaurant</Link> |{" "}
+        <Link to="/driver">Driver</Link> |{" "}
         <Link to="/login">Login</Link>
+        
       </nav>
 
       <Routes>
@@ -23,6 +26,7 @@ export default function App() {
         <Route path="/customer/order/:orderId" element={<OrderStatus />} />
         <Route path="/restaurant" element={<Dashboard />} />
         <Route path="/restaurant/menu" element={<MenuManagement />} />
+        <Route path="/driver" element={<Driver />} />
       </Routes>
     </>
   );
