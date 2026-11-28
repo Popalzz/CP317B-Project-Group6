@@ -5,24 +5,20 @@ Amir with Ervin consuming the API from frontend.
 """
 menus = {
     1: {
-        1: {
-            "name": "Cheese Pizza",
-            "price": 14.99,
-            "available": True
-        },
-        2: {
-            "name": "Pepperoni Pizza",
-            "price": 16.99,
-            "available": True
-        }
+        1: {"name": "Cheese Pizza", "price": 14.99, "available": True},
+        2: {"name": "Pepperoni Pizza", "price": 16.99, "available": True},
+        3: {"name": "Garlic Bread", "price": 6.50, "available": True},
     },
     2: {
-        1: {
-            "name": "Burger",
-            "price": 11.99,
-            "available": True
-        }
-    }
+        1: {"name": "Burger", "price": 11.99, "available": True},
+        2: {"name": "Cheese Fries", "price": 7.25, "available": True},
+        3: {"name": "Milkshake", "price": 5.99, "available": True},
+    },
+    3: {
+        1: {"name": "Coffee", "price": 2.25, "available": True},
+        2: {"name": "Breakfast Sandwich", "price": 5.49, "available": True},
+        3: {"name": "Donut", "price": 1.79, "available": True},
+    },
 }
 
 def get_menu(restaurant_id: int):

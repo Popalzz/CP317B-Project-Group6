@@ -14,6 +14,13 @@ restaurants = {
         "latitude": 43.3681,
         "longitude": -80.4925,
         "is_open": True
+    },
+    3: {
+        "owner_id": 103,
+        "name": "Tim's",
+        "latitude": 43.3681,
+        "longitude": -80.3187,
+        "is_open": True
     }
 }
 

@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import {
   fetchRestaurantOrders,
+  fetchRestaurants,
   updateOrderStatus,
+  LOCATIONS,
 } from "../../api";
 
 const REFRESH_MS = 3000;
 
 export default function Dashboard() {
-  const restaurantId = 1;
+  // There is no restaurant login yet, so the owner picks which restaurant
+  // to manage.
+  const [restaurantId, setRestaurantId] = useState(1);
+  const [restaurantOptions, setRestaurantOptions] = useState([]);
 
   const [orders, setOrders] = useState([]);
   const [restaurant, setRestaurant] = useState(null);
@@ -18,6 +23,11 @@ export default function Dashboard() {
   // without a manual reload.
   useEffect(() => {
     let cancelled = false;
+
+    // Start clean whenever a different restaurant is selected.
+    setLoading(true);
+    setOrders([]);
+    setError("");
 
     async function refresh() {
       try {
@@ -40,6 +50,16 @@ export default function Dashboard() {
       cancelled = true;
       clearInterval(timer);
     };
+  }, [restaurantId]);
+
+  // Load the restaurants for the picker. This reuses the customer browse
+  // endpoint with the first sample location (Waterloo).
+  useEffect(() => {
+    fetchRestaurants(LOCATIONS[0].lat, LOCATIONS[0].lon)
+      .then(setRestaurantOptions)
+      .catch(() => {
+        // The picker is optional; the dashboard still works for restaurant 1.
+      });
   }, []);
 
   function getNextStatus(status) {
@@ -83,6 +103,24 @@ export default function Dashboard() {
   return (
     <main style={{ maxWidth: 700, margin: "0 auto", padding: 16 }}>
       <h1>{restaurant?.name || "Restaurant"} Dashboard</h1>
+
+      {restaurantOptions.length > 0 && (
+        <p>
+          <label>
+            Restaurant:{" "}
+            <select
+              value={restaurantId}
+              onChange={(e) => setRestaurantId(Number(e.target.value))}
+            >
+              {restaurantOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </p>
+      )}
 
       {/* Shown above the orders instead of replacing the page, so a brief
           network error during a refresh doesn't hide the order list. */}

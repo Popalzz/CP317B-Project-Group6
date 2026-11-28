@@ -132,3 +132,15 @@ def test_invalid_status_transition(client):
     )
 
     assert response.status_code == 400
+
+
+def test_every_listed_restaurant_has_a_menu(client):
+    listed = client.get("/restaurants?lat=43.4643&lon=-80.5204").get_json()
+
+    assert len(listed) >= 1
+
+    for restaurant in listed:
+        response = client.get(f"/restaurants/{restaurant['id']}/menu")
+
+        assert response.status_code == 200
+        assert len(response.get_json()["items"]) >= 1
