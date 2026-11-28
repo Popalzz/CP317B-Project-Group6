@@ -137,3 +137,14 @@ export async function acceptDelivery(orderId, driverId) {
 
   return data;
 }
+
+export async function fetchOrderEta(orderId) {
+  const res = await fetch(`/api/orders/${orderId}/eta`);
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to load delivery estimate");
+  }
+
+  return data;
+}
