@@ -4,6 +4,8 @@ import {
   updateOrderStatus,
 } from "../../api";
 
+const REFRESH_MS = 3000;
+
 export default function Dashboard() {
   const restaurantId = 1;
 
@@ -12,18 +14,32 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Load once, then refresh every few seconds so new orders show up
+  // without a manual reload.
   useEffect(() => {
-    fetchRestaurantOrders(restaurantId)
-      .then((data) => {
+    let cancelled = false;
+
+    async function refresh() {
+      try {
+        const data = await fetchRestaurantOrders(restaurantId);
+        if (cancelled) return;
         setRestaurant(data.restaurant);
         setOrders(data.orders);
-      })
-      .catch((err) => {
-        setError(err.message || "Failed to load orders.");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+        setError("");
+      } catch (err) {
+        if (!cancelled) setError(err.message || "Failed to load orders.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    refresh();
+    const timer = setInterval(refresh, REFRESH_MS);
+
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
   }, []);
 
   function getNextStatus(status) {
@@ -47,6 +63,7 @@ export default function Dashboard() {
         nextStatus
       );
 
+      setError("");
       setOrders((currentOrders) =>
         currentOrders.map((currentOrder) =>
           currentOrder.order_id === updatedOrder.order_id
@@ -63,13 +80,13 @@ export default function Dashboard() {
     return <p>Loading restaurant orders...</p>;
   }
 
-  if (error) {
-    return <p role="alert">{error}</p>;
-  }
-
   return (
     <main style={{ maxWidth: 700, margin: "0 auto", padding: 16 }}>
       <h1>{restaurant?.name || "Restaurant"} Dashboard</h1>
+
+      {/* Shown above the orders instead of replacing the page, so a brief
+          network error during a refresh doesn't hide the order list. */}
+      {error && <p role="alert">{error}</p>}
 
       {orders.length === 0 ? (
         <p>No orders yet.</p>

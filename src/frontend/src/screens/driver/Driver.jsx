@@ -155,7 +155,11 @@ export default function Driver() {
   }
 
   function restaurantName(order) {
-    return menus[order.restaurant_id]?.restaurant?.name || `Restaurant #${order.restaurant_id}`;
+    return (
+      order.restaurant_name ||
+      menus[order.restaurant_id]?.restaurant?.name ||
+      `Restaurant #${order.restaurant_id}`
+    );
   }
 
   function itemLabel(order, item) {
@@ -197,6 +201,13 @@ export default function Driver() {
             <p>
               <strong>Pickup:</strong> {restaurantName(order)}
             </p>
+
+            {order.delivery_distance_km != null && (
+              <p>
+                <strong>Distance to customer:</strong>{" "}
+                {order.delivery_distance_km} km
+              </p>
+            )}
 
             <ul>
               {order.items.map((item) => (
